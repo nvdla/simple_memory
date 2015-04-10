@@ -56,7 +56,6 @@
 #endif
 
 #include <systemc.h>
-#include <sys/syscall.h>
 #include <sys/mman.h>
 
 #include "gsgpsocket/transport/GSGPSlaveSocket.h"
