@@ -41,5 +41,5 @@
 ADD_EXECUTABLE(SimpleMemory_testbench
                SimpleMemory_testbench.cpp
                )
-TARGET_LINK_LIBRARIES(SimpleMemory_testbench systemc greenreg)
+TARGET_LINK_LIBRARIES(SimpleMemory_testbench ${SystemC_LIBRARIES})
 ADD_TEST(NAME SimpleMemory COMMAND ./SimpleMemory_testbench)
