@@ -1,14 +1,21 @@
-
 *~
+._*
 
-# CMakeFiles
+### OSX ###
+.DS_Store
+.AppleDouble
+.LSOverride
+
+### CMake ###
 CMakeCache.txt
 CMakeFiles
-CTestTestfile.cmake
 Makefile
-Testing
 cmake_install.cmake
 install_manifest.txt
+CPackSourceConfig.cmake
+CPackConfig.cmake
+CTestTestfile.cmake
+Testing/
 
 # Objects
 test/SimpleMemory_testbench
