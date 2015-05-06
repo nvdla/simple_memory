@@ -19,3 +19,4 @@ Testing/
 
 # Objects
 test/simplememory-test
+test/dualportmemory-test
