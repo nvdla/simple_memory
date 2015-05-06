@@ -18,4 +18,4 @@ CTestTestfile.cmake
 Testing/
 
 # Objects
-test/SimpleMemory_testbench
+test/simplememory-test
