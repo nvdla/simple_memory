@@ -10,7 +10,7 @@
 #ifndef DUAL_PORT_MEMORY_H
 #define DUAL_PORT_MEMORY_H
 
-#include "BaseMemory/BaseMemory.h"
+#include "SimpleMemory/BaseMemory.h"
 
 class DualPortMemory : public BaseMemory,
     public gs::tlm_multi_b_if<gs::gp::GenericSlaveAccessHandle>

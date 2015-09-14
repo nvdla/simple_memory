@@ -1,4 +1,4 @@
-#include "DualPortMemory/DualPortMemory.h"
+#include "SimpleMemory/DualPortMemory.h"
 
 int sc_main(int argc, char *argv[])
 {
