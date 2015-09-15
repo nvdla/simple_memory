@@ -1,13 +1,60 @@
 /*
-* @file BaseMemory.h
-* @author Guillaume Delbergue <guillaume.delbergue@greensocs.com>
-* @author Frederic Konrad <fred.konrad@greensocs.com>
-* @date May, 2015
-* @copyright Copyright (C) 2015, GreenSocs Ltd.
-*
-* @brief Base memory for SystemC using GreenLib.
-* @details You shouldn't directly instantiate this class.
-*/
+ * BaseMemory.h
+ *
+ * Copyright (C) 2015, GreenSocs Ltd.
+ *
+ * Developed by Konrad Frederic <fred.konrad@greensocs.com>
+ *              Guillaume Delbergue <guillaume.delbergue@greensocs.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see <http://www.gnu.org/licenses>.
+ *
+ * Linking GreenSocs code, statically or dynamically with other modules
+ * is making a combined work based on GreenSocs code. Thus, the terms and
+ * conditions of the GNU General Public License cover the whole
+ * combination.
+ *
+ * In addition, as a special exception, the copyright holders, GreenSocs
+ * Ltd, give you permission to combine GreenSocs code with free software
+ * programs or libraries that are released under the GNU LGPL, under the
+ * OSCI license, under the OCP TLM Kit Research License Agreement or
+ * under the OVP evaluation license.You may copy and distribute such a
+ * system following the terms of the GNU GPL and the licenses of the
+ * other code concerned.
+ *
+ * Note that people who make modified versions of GreenSocs code are not
+ * obligated to grant this special exception for their modified versions;
+ * it is their choice whether to do so. The GNU General Public License
+ * gives permission to release a modified version without this exception;
+ * this exception also makes it possible to release a modified version
+ * which carries forward this exception.
+ *
+ */
+
+/*
+ * @file BaseMemory.h
+ * @author Guillaume Delbergue <guillaume.delbergue@greensocs.com>
+ * @author Frederic Konrad <fred.konrad@greensocs.com>
+ * @date May, 2015
+ * @copyright Copyright (C) 2015, GreenSocs Ltd.
+ *
+ * @brief Base memory for SystemC using GreenLib.
+ * @details You shouldn't directly instantiate this class.
+ */
+
+#ifndef BASE_MEMORY_INCLUSION_PROTECTOR
+#error __FILE__ "must not be included directly."
+#endif /* BASE_MEMORY_INCLUSION_PROTECTOR */
 
 #ifndef BASE_MEMORY_H
 #define BASE_MEMORY_H
@@ -20,19 +67,13 @@
 #define DCOUT(var)
 #endif
 
-#include <systemc>
 #include <stdint.h>
 #include <sys/mman.h>
 
-#include "gsgpsocket/transport/GSGPSlaveSocket.h"
-
-class BaseMemory: public sc_core::sc_module
+class BaseMemory
 {
 public:
-    BaseMemory(sc_core::sc_module_name name):
-    sc_core::sc_module(name),
-    m_size("size", 1000),
-    m_ro("read_only", false)
+    BaseMemory()
     {
     }
 
@@ -44,8 +85,10 @@ public:
         }
     }
 
-    void end_of_elaboration()
+    void allocate_memory(size_t size, bool ro)
     {
+        m_size = size;
+        m_ro = ro;
         m_ptr = mmap(0, m_size * 1024, PROT_READ | PROT_WRITE,
                                        MAP_ANONYMOUS | MAP_PRIVATE,
                                        -1, 0);
@@ -116,8 +159,8 @@ public:
     }
 
 private:
-    gs::gs_param<uint32_t> m_size;
-    gs::gs_param<bool> m_ro; /*!< read only? */
+    size_t m_size;
+    bool m_ro;
     void *m_ptr;
 };
 
