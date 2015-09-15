@@ -67,11 +67,7 @@ public:
     {
         gs::gp::GenericSlavePort<32>::accessHandle t =
             _getSlaveAccessHandle(ah);
-        gs::GSDataType data;
-        size_t size;
-
-        data.set(t->getMData());
-        size = data.getSize();
+        size_t size = t->getMBurstLength();
 
         if (offset + size > m_size * 1024)
         {
@@ -82,7 +78,9 @@ public:
 
         if (t->getMCmd() == gs::Generic_MCMD_RD)
         {
-            memcpy(data.getDataPtr(), &(((uint8_t *)m_ptr)[offset]), size);
+            gs::GSDataType::dtype tmp(&(((uint8_t *)m_ptr)[offset]), size);
+            gs::MData mdata(tmp);
+            t->setSData(mdata);
         }
         else if (t->getMCmd() == gs::Generic_MCMD_WR)
         {
@@ -91,7 +89,8 @@ public:
              */
             if (!m_ro)
             {
-                memcpy(&(((uint8_t *)m_ptr)[offset]), data.getDataPtr(), size);
+                memcpy(&(((uint8_t *)m_ptr)[offset]), &(t->getMData()[0]),
+                       size);
             }
         }
         else
