@@ -106,10 +106,9 @@ public:
         m_ro = read_only;
     }
 
-    void b_transact(gs::gp::GenericSlaveAccessHandle ah, uint32_t offset)
+    void b_transact(gs::gp::GenericSlavePort<32>::accessHandle t,
+                    uint32_t offset)
     {
-        gs::gp::GenericSlavePort<32>::accessHandle t =
-            _getSlaveAccessHandle(ah);
         size_t size = t->getMBurstLength();
 
         if (offset + size > m_size * 1024)

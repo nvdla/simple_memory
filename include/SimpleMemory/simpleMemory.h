@@ -94,7 +94,7 @@ class Memory:
       gs::gp::GenericSlavePort<32>::accessHandle t = _getSlaveAccessHandle(ah);
       uint32_t offset = t->getMAddr() - target_port.base_addr;
 
-      BaseMemory::b_transact(ah, offset);
+      BaseMemory::b_transact(t, offset);
     }
 
     /*

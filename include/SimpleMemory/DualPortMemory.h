@@ -50,7 +50,7 @@ public:
         } else {
             offset = t->getMAddr() - targetPort1.base_addr;
         }
-        b_transact(ah, offset);
+        b_transact(t, offset);
     }
 
     void end_of_elaboration()
