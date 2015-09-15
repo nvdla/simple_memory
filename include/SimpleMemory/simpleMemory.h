@@ -56,17 +56,21 @@
 #endif
 
 #include <systemc.h>
-#include <sys/mman.h>
+#include <gsgpsocket/transport/GSGPSlaveSocket.h>
 
-#include "gsgpsocket/transport/GSGPSlaveSocket.h"
+#define BASE_MEMORY_INCLUSION_PROTECTOR 
+#include "SimpleMemory/BaseMemory.h"
+#undef BASE_MEMORY_INCLUSION_PROTECTOR
 
 class Memory:
   public sc_module,
+  public BaseMemory,
   public gs::tlm_b_if<gs::gp::GenericSlaveAccessHandle>
 {
   public:
     Memory(sc_core::sc_module_name name):
     sc_module(name),
+    BaseMemory(),
     target_port("target_port"),
     m_size("size", 262144),
     m_ro("read_only", false)
@@ -78,79 +82,19 @@ class Memory:
 
     ~Memory()
     {
-      if (m_ptr) {
-        munmap(m_ptr, m_size * 1024);
-      }
-      DCOUT("destructor.");
     }
 
     void end_of_elaboration()
     {
-      m_ptr = mmap(0, m_size * 1024, PROT_READ | PROT_WRITE,
-                         MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-
-      if (!m_ptr)
-      {
-        std::cout << "Memory: error: can't create memory." << std::endl;
-        sc_core::sc_stop();
-        return;
-      }
-    }
-
-    void setReadOnly(bool read_only)
-    {
-      m_ro = read_only;
+      this->allocate_memory(m_size, m_ro);
     }
 
     void b_transact(gs::gp::GenericSlaveAccessHandle ah)
     {
       gs::gp::GenericSlavePort<32>::accessHandle t = _getSlaveAccessHandle(ah);
       uint32_t offset = t->getMAddr() - target_port.base_addr;
-      size_t size = t->getMBurstLength();
 
-      if (offset + size > m_size * 1024)
-      {
-        std::cout << "error out of bound memory access.." << std::endl;
-        sc_core::sc_stop();
-        return;
-      }
-
-      if (t->getMCmd() == gs::Generic_MCMD_RD)
-      {
-        gs::GSDataType::dtype tmp(&(((uint8_t *)m_ptr)[offset]), size);
-        gs::MData mdata(tmp);
-        t->setSData(mdata);
-      }
-      else if (t->getMCmd() == gs::Generic_MCMD_WR)
-      {
-        /*
-         * FIXME: We should give a bad status for that...
-         */
-        if (!m_ro)
-        {
-          memcpy(&(((uint8_t *)m_ptr)[offset]), &(t->getMData()[0]), size);
-        }
-      }
-      else
-      {
-        std::cout << "invalid command.." << std::endl;
-        sc_core::sc_stop();
-        return;
-      }
-    }
-
-    /*
-     * XXX: What about Read Only??
-     */
-    bool get_direct_mem_ptr(unsigned int from,
-                            tlm::tlm_generic_payload& trans,
-                            tlm::tlm_dmi& dmi_data)
-    {
-      dmi_data.set_dmi_ptr((unsigned char *)m_ptr);
-      dmi_data.set_start_address(0);
-      dmi_data.set_end_address(m_size * 1024 - 1);
-      trans.set_dmi_allowed(true);
-      return true;
+      BaseMemory::b_transact(ah, offset);
     }
 
     /*
@@ -160,7 +104,6 @@ class Memory:
   private:
     gs::gs_param<uint32_t> m_size;
     gs::gs_param<bool> m_ro; /*!< read only? */
-    void *m_ptr;
 };
 
 #endif /* MEMORY_H */
