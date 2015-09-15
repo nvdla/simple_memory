@@ -17,6 +17,7 @@
 #include "SimpleMemory/BaseMemory.h"
 #undef BASE_MEMORY_INCLUSION_PROTECTOR
 
+template <unsigned int BUSWIDTH_0, unsigned int BUSWIDTH_1>
 class DualPortMemory:
   public sc_core::sc_module,
   public BaseMemory
@@ -44,8 +45,7 @@ public:
     void b_transact_0(gs::gp::GenericSlaveAccessHandle ah)
     {
         uint32_t offset;
-        gs::gp::GenericSlavePort<32>::accessHandle t =
-            _getSlaveAccessHandle(ah);
+        accessHandle0 t = _getSlaveAccessHandle(ah);
 
         offset = t->getMAddr() - targetPort0.base_addr;
         BaseMemory::b_transact(t, offset);
@@ -54,8 +54,7 @@ public:
     void b_transact_1(gs::gp::GenericSlaveAccessHandle ah)
     {
         uint32_t offset;
-        gs::gp::GenericSlavePort<32>::accessHandle t =
-            _getSlaveAccessHandle(ah);
+        accessHandle1 t = _getSlaveAccessHandle(ah);
 
         offset = t->getMAddr() - targetPort1.base_addr;
         BaseMemory::b_transact(t, offset);
@@ -67,8 +66,12 @@ public:
     }
 
     // Sockets for memory access
-    gs::gp::GenericSlavePort<32> targetPort0;
-    gs::gp::GenericSlavePort<32> targetPort1;
+    typedef typename gs::gp::GenericSlavePort<BUSWIDTH_0>::accessHandle
+                                                               accessHandle0;
+    gs::gp::GenericSlavePort<BUSWIDTH_0> targetPort0;
+    typedef typename gs::gp::GenericSlavePort<BUSWIDTH_1>::accessHandle
+                                                               accessHandle1;
+    gs::gp::GenericSlavePort<BUSWIDTH_1> targetPort1;
 
   private:
     gs::gs_param<uint32_t> m_size;

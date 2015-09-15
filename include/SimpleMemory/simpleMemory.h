@@ -62,6 +62,7 @@
 #include "SimpleMemory/BaseMemory.h"
 #undef BASE_MEMORY_INCLUSION_PROTECTOR
 
+template <unsigned int BUSWIDTH>
 class Memory:
   public sc_module,
   public BaseMemory,
@@ -91,7 +92,7 @@ class Memory:
 
     void b_transact(gs::gp::GenericSlaveAccessHandle ah)
     {
-      gs::gp::GenericSlavePort<32>::accessHandle t = _getSlaveAccessHandle(ah);
+      accessHandle t = _getSlaveAccessHandle(ah);
       uint32_t offset = t->getMAddr() - target_port.base_addr;
 
       BaseMemory::b_transact(t, offset);
@@ -100,7 +101,9 @@ class Memory:
     /*
      * Socket for memory access.
      */
-    gs::gp::GenericSlavePort<32> target_port;
+    typename gs::gp::GenericSlavePort<BUSWIDTH> target_port;
+    typedef typename gs::gp::GenericSlavePort<BUSWIDTH>::accessHandle
+                                                                  accessHandle;
   private:
     gs::gs_param<uint32_t> m_size;
     gs::gs_param<bool> m_ro; /*!< read only? */

@@ -182,7 +182,7 @@ class TestMaster:
 
 int sc_main(int argc, char *argv[])
 {
-    Memory *mem = new Memory("mem");
+    Memory<32> *mem = new Memory<32>("mem");
     TestMaster *initiator = new TestMaster("initiator");
 
     initiator->master_socket(mem->target_port);
