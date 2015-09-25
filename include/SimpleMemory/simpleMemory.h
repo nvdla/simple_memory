@@ -79,6 +79,7 @@ class Memory:
       this->target_port.bind_b_if(*this);
       this->target_port.register_get_direct_mem_ptr(this,
                                                    &Memory::get_direct_mem_ptr);
+      this->target_port.register_transport_dbg(this, &Memory::dbg_transact);
     }
 
     ~Memory()
@@ -96,6 +97,13 @@ class Memory:
       uint32_t offset = t->getMAddr() - target_port.base_addr;
 
       BaseMemory::b_transact(t, offset);
+    }
+
+    unsigned int dbg_transact(unsigned int index,
+                              tlm::tlm_generic_payload& payload)
+    {
+        uint64_t offset = payload.get_address() - target_port.base_addr;
+        return BaseMemory::dbg_transport(payload, offset);
     }
 
     /*

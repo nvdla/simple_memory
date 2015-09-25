@@ -33,13 +33,31 @@ public:
     {
         wrap_1.register_b_transport(&DualPortMemory::b_transact_0, this);
         this->targetPort0.bind_b_if(wrap_1);
+	this->targetPort0.register_transport_dbg(this,
+					 &DualPortMemory::dbg_transact_0);
         this->targetPort0.register_get_direct_mem_ptr(this,
             &DualPortMemory::get_direct_mem_ptr);
 
         wrap_2.register_b_transport(&DualPortMemory::b_transact_1, this);
         this->targetPort1.bind_b_if(wrap_2);
+	this->targetPort1.register_transport_dbg(this,
+					 &DualPortMemory::dbg_transact_1);
         this->targetPort1.register_get_direct_mem_ptr(this,
             &DualPortMemory::get_direct_mem_ptr);
+    }
+
+    unsigned int dbg_transact_0(unsigned int index,
+                                tlm::tlm_generic_payload& payload)
+    {
+        uint64_t offset = payload.get_address() - targetPort0.base_addr;
+        return BaseMemory::dbg_transport(payload, offset);
+    }
+
+    unsigned int dbg_transact_1(unsigned int index,
+                                tlm::tlm_generic_payload& payload)
+    {
+        uint64_t offset = payload.get_address() - targetPort1.base_addr;
+        return BaseMemory::dbg_transport(payload, offset);
     }
 
     void b_transact_0(gs::gp::GenericSlaveAccessHandle ah)
@@ -55,6 +73,13 @@ public:
     {
         uint32_t offset;
         accessHandle1 t = _getSlaveAccessHandle(ah);
+
+#if 0
+	temp_counting++;
+	if (temp_counting > 100)
+	  SC_REPORT_ERROR("STOPPED", "TO SEE THE TRACE.");
+	std::cout << "pAsip mem access: " << t->getMAddr() << std::endl;
+#endif
 
         offset = t->getMAddr() - targetPort1.base_addr;
         BaseMemory::b_transact(t, offset);
@@ -74,6 +99,7 @@ public:
     gs::gp::GenericSlavePort<BUSWIDTH_1> targetPort1;
 
   private:
+    size_t temp_counting; /* HACK */
     gs::gs_param<uint32_t> m_size;
     gs::gs_param<bool> m_ro; /*!< read only? */
     gs::tlm_b_if_wrapper<DualPortMemory,

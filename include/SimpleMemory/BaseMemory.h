@@ -106,6 +106,29 @@ public:
         m_ro = read_only;
     }
 
+    unsigned int dbg_transport(tlm::tlm_generic_payload& payload,
+		               uint32_t offset)
+    {
+        tlm::tlm_command command = payload.get_command();
+        unsigned char *dataPtr = payload.get_data_ptr();
+        unsigned int length = payload.get_data_length();
+
+	switch (command)
+	{
+	    case tlm::TLM_READ_COMMAND:
+	      memcpy(dataPtr, &(((uint8_t *)m_ptr)[offset]), length);
+            break;
+            case tlm::TLM_WRITE_COMMAND:
+	      memcpy(&(((uint8_t *)m_ptr)[offset]), dataPtr, length);
+            break;
+            default:
+	    break;
+	}
+
+        payload.set_response_status(tlm::TLM_OK_RESPONSE);
+        return length;
+    }
+
     void b_transact(gs::gp::GenericSlavePort<32>::accessHandle t,
                     uint32_t offset)
     {
