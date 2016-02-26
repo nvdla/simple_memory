@@ -74,13 +74,6 @@ public:
         uint32_t offset;
         accessHandle1 t = _getSlaveAccessHandle(ah);
 
-#if 0
-	temp_counting++;
-	if (temp_counting > 100)
-	  SC_REPORT_ERROR("STOPPED", "TO SEE THE TRACE.");
-	std::cout << "pAsip mem access: " << t->getMAddr() << std::endl;
-#endif
-
         offset = t->getMAddr() - targetPort1.base_addr;
         BaseMemory::b_transact(t, offset);
     }
@@ -99,7 +92,6 @@ public:
     gs::gp::GenericSlavePort<BUSWIDTH_1> targetPort1;
 
   private:
-    size_t temp_counting; /* HACK */
     gs::gs_param<uint32_t> m_size;
     gs::gs_param<bool> m_ro; /*!< read only? */
     gs::tlm_b_if_wrapper<DualPortMemory,
