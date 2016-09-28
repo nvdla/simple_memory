@@ -141,28 +141,74 @@ public:
             return;
         }
 
-        if (t->getMCmd() == gs::Generic_MCMD_RD)
+        if (!t->get_tlm_transaction()->get_byte_enable_ptr())
         {
-            gs::GSDataType::dtype tmp(&(((uint8_t *)m_ptr)[offset]), size);
-            gs::MData mdata(tmp);
-            t->setSData(mdata);
-        }
-        else if (t->getMCmd() == gs::Generic_MCMD_WR)
-        {
-            /*
-             * FIXME: We should give a bad status for that...
-             */
-            if (!m_ro)
+            if (t->getMCmd() == gs::Generic_MCMD_RD)
             {
-                memcpy(&(((uint8_t *)m_ptr)[offset]), &(t->getMData()[0]),
-                       size);
+                gs::GSDataType::dtype tmp(&(((uint8_t *)m_ptr)[offset]), size);
+                gs::MData mdata(tmp);
+                t->setSData(mdata);
+            }
+            else if (t->getMCmd() == gs::Generic_MCMD_WR)
+            {
+                /*
+                 * FIXME: We should give a bad status for that...
+                 */
+                if (!m_ro)
+                {
+                    memcpy(&(((uint8_t *)m_ptr)[offset]), &(t->getMData()[0]),
+                           size);
+                }
+            }
+            else
+            {
+                std::cout << "Invalid command ..." << std::endl;
+                sc_core::sc_stop();
+                return;
             }
         }
         else
         {
-            std::cout << "Invalid command ..." << std::endl;
-            sc_core::sc_stop();
-            return;
+            unsigned int i;
+            unsigned char *mask =
+                                t->get_tlm_transaction()->get_byte_enable_ptr();
+            unsigned int mask_len =
+                             t->get_tlm_transaction()->get_byte_enable_length();
+
+            if (size > mask_len)
+            {
+                std::cout << "Invalid mask length ..." << std::endl;
+                sc_core::sc_stop();
+                return;
+            }
+
+            if (t->getMCmd() == gs::Generic_MCMD_RD)
+            {
+                for (i = 0; i < size; i++)
+                {
+                    t->getMData()[i] = (mask[i] == 0xff)
+                                       ? ((uint8_t *)m_ptr)[offset + i]
+                                       : 0;
+                }
+            }
+            else if (t->getMCmd() == gs::Generic_MCMD_WR)
+            {
+                if (!m_ro)
+                {
+                    for (i = 0; i < size; i++)
+                    {
+                        ((uint8_t *)m_ptr)[offset + i] = (mask[i] == 0xff)
+                                               ? t->getMData()[i]
+                                               : ((uint8_t *)m_ptr)[offset + i];
+                    }
+                }
+            }
+            else
+            {
+                std::cout << "Invalid command ..." << std::endl;
+                sc_core::sc_stop();
+                return;
+            }
         }
     }
 

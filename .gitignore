@@ -20,3 +20,4 @@ Testing/
 # Objects
 test/simplememory-test
 test/dualportmemory-test
+test/byteenable-test
