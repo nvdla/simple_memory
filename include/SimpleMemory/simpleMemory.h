@@ -106,6 +106,16 @@ class Memory:
         return BaseMemory::dbg_transport(payload, offset);
     }
 
+    bool get_direct_mem_ptr(unsigned int from,
+			    tlm::tlm_generic_payload& payload,
+			    tlm::tlm_dmi& dmi_data)
+    {
+        /* Wrap get_direct_mem_ptr() to get the port offset in BaseMemory */
+
+        return BaseMemory::get_direct_mem_ptr(from, target_port.base_addr,
+					      payload, dmi_data);
+    }
+
     /*
      * Socket for memory access.
      */

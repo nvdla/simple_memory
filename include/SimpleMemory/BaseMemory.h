@@ -215,14 +215,15 @@ public:
     /*
      * XXX: What about Read Only??
      */
-    bool get_direct_mem_ptr(unsigned int from,
-                            tlm::tlm_generic_payload& trans,
+    bool get_direct_mem_ptr(unsigned int from, uint64_t offset,
+		            tlm::tlm_generic_payload& payload,
                             tlm::tlm_dmi& dmi_data)
     {
         dmi_data.set_dmi_ptr((unsigned char *)m_ptr);
-        dmi_data.set_start_address(0);
-        dmi_data.set_end_address(m_size * 1024 - 1);
-        trans.set_dmi_allowed(true);
+        dmi_data.set_start_address(offset);
+        dmi_data.set_end_address(offset + m_size * 1024 - 1);
+        payload.set_dmi_allowed(true);
+
         return true;
     }
 
