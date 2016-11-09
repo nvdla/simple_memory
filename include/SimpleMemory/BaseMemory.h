@@ -141,42 +141,89 @@ public:
             return;
         }
 
-        if (t->getMCmd() == gs::Generic_MCMD_RD)
+        if (!t->get_tlm_transaction()->get_byte_enable_ptr())
         {
-            gs::GSDataType::dtype tmp(&(((uint8_t *)m_ptr)[offset]), size);
-            gs::MData mdata(tmp);
-            t->setSData(mdata);
-        }
-        else if (t->getMCmd() == gs::Generic_MCMD_WR)
-        {
-            /*
-             * FIXME: We should give a bad status for that...
-             */
-            if (!m_ro)
+            if (t->getMCmd() == gs::Generic_MCMD_RD)
             {
-                memcpy(&(((uint8_t *)m_ptr)[offset]), &(t->getMData()[0]),
-                       size);
+                gs::GSDataType::dtype tmp(&(((uint8_t *)m_ptr)[offset]), size);
+                gs::MData mdata(tmp);
+                t->setSData(mdata);
+            }
+            else if (t->getMCmd() == gs::Generic_MCMD_WR)
+            {
+                /*
+                 * FIXME: We should give a bad status for that...
+                 */
+                if (!m_ro)
+                {
+                    memcpy(&(((uint8_t *)m_ptr)[offset]), &(t->getMData()[0]),
+                           size);
+                }
+            }
+            else
+            {
+                std::cout << "Invalid command ..." << std::endl;
+                sc_core::sc_stop();
+                return;
             }
         }
         else
         {
-            std::cout << "Invalid command ..." << std::endl;
-            sc_core::sc_stop();
-            return;
+            unsigned int i;
+            unsigned char *mask =
+                                t->get_tlm_transaction()->get_byte_enable_ptr();
+            unsigned int mask_len =
+                             t->get_tlm_transaction()->get_byte_enable_length();
+
+            if (size > mask_len)
+            {
+                std::cout << "Invalid mask length ..." << std::endl;
+                sc_core::sc_stop();
+                return;
+            }
+
+            if (t->getMCmd() == gs::Generic_MCMD_RD)
+            {
+                for (i = 0; i < size; i++)
+                {
+                    t->getMData()[i] = (mask[i] == 0xff)
+                                       ? ((uint8_t *)m_ptr)[offset + i]
+                                       : 0;
+                }
+            }
+            else if (t->getMCmd() == gs::Generic_MCMD_WR)
+            {
+                if (!m_ro)
+                {
+                    for (i = 0; i < size; i++)
+                    {
+                        ((uint8_t *)m_ptr)[offset + i] = (mask[i] == 0xff)
+                                               ? t->getMData()[i]
+                                               : ((uint8_t *)m_ptr)[offset + i];
+                    }
+                }
+            }
+            else
+            {
+                std::cout << "Invalid command ..." << std::endl;
+                sc_core::sc_stop();
+                return;
+            }
         }
     }
 
     /*
      * XXX: What about Read Only??
      */
-    bool get_direct_mem_ptr(unsigned int from,
-                            tlm::tlm_generic_payload& trans,
+    bool get_direct_mem_ptr(unsigned int from, uint64_t offset,
+		            tlm::tlm_generic_payload& payload,
                             tlm::tlm_dmi& dmi_data)
     {
         dmi_data.set_dmi_ptr((unsigned char *)m_ptr);
-        dmi_data.set_start_address(0);
-        dmi_data.set_end_address(m_size * 1024 - 1);
-        trans.set_dmi_allowed(true);
+        dmi_data.set_start_address(offset);
+        dmi_data.set_end_address(offset + m_size * 1024 - 1);
+        payload.set_dmi_allowed(true);
+
         return true;
     }
 

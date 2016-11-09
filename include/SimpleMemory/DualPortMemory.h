@@ -36,14 +36,14 @@ public:
 	this->targetPort0.register_transport_dbg(this,
 					 &DualPortMemory::dbg_transact_0);
         this->targetPort0.register_get_direct_mem_ptr(this,
-            &DualPortMemory::get_direct_mem_ptr);
+            &DualPortMemory::get_direct_mem_ptr_0);
 
         wrap_2.register_b_transport(&DualPortMemory::b_transact_1, this);
         this->targetPort1.bind_b_if(wrap_2);
 	this->targetPort1.register_transport_dbg(this,
 					 &DualPortMemory::dbg_transact_1);
         this->targetPort1.register_get_direct_mem_ptr(this,
-            &DualPortMemory::get_direct_mem_ptr);
+            &DualPortMemory::get_direct_mem_ptr_1);
     }
 
     unsigned int dbg_transact_0(unsigned int index,
@@ -77,6 +77,27 @@ public:
         offset = t->getMAddr() - targetPort1.base_addr;
         BaseMemory::b_transact(t, offset);
     }
+
+    bool get_direct_mem_ptr_0(unsigned int from,
+			      tlm::tlm_generic_payload& payload,
+			      tlm::tlm_dmi& dmi_data)
+    {
+        /* Wrap get_direct_mem_ptr() to get the port offset in BaseMemory */
+
+        return BaseMemory::get_direct_mem_ptr(from, targetPort0.base_addr,
+                                              payload, dmi_data);
+    }
+
+    bool get_direct_mem_ptr_1(unsigned int from,
+			      tlm::tlm_generic_payload& payload,
+			      tlm::tlm_dmi& dmi_data)
+    {
+        /* Wrap get_direct_mem_ptr() to get the port offset in BaseMemory */
+
+        return BaseMemory::get_direct_mem_ptr(from, targetPort1.base_addr,
+                                              payload, dmi_data);
+    }
+
 
     void end_of_elaboration()
     {

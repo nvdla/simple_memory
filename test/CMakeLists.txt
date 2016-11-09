@@ -9,6 +9,7 @@
 
 add_executable(simplememory-test SimpleMemoryTest.cpp)
 add_executable(dualportmemory-test DualPortMemoryTest.cpp)
+add_executable(byteenable-test ByteEnableTest.cpp)
 
 set(TEST_LINK_LIBRARIES ${SystemC_LIBRARIES})
 if(MINGW)
@@ -17,6 +18,8 @@ endif(MINGW)
 
 target_link_libraries(simplememory-test ${TEST_LINK_LIBRARIES})
 target_link_libraries(dualportmemory-test ${TEST_LINK_LIBRARIES})
+target_link_libraries(byteenable-test ${TEST_LINK_LIBRARIES})
 
 add_test(NAME simplememory COMMAND ./simplememory-test)
 add_test(NAME dualportmemory COMMAND ./dualportmemory-test)
+add_test(NAME byteenable COMMAND ./byteenable-test)
