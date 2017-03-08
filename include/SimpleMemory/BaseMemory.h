@@ -219,9 +219,14 @@ public:
 		            tlm::tlm_generic_payload& payload,
                             tlm::tlm_dmi& dmi_data)
     {
+        dmi_data.allow_read();
         dmi_data.set_dmi_ptr((unsigned char *)m_ptr);
         dmi_data.set_start_address(offset);
         dmi_data.set_end_address(offset + m_size * 1024 - 1);
+	if (!this->m_ro)
+	{
+	    dmi_data.allow_write();
+	}
         payload.set_dmi_allowed(true);
 
         return true;
