@@ -210,6 +210,8 @@ public:
                 return;
             }
         }
+
+        t->get_tlm_transaction()->set_dmi_allowed(true);
     }
 
     /*
