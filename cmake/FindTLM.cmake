@@ -46,21 +46,21 @@ find_file(_TLM_VERSION_FILE
 if(EXISTS ${_TLM_VERSION_FILE})
     file (READ ${_TLM_VERSION_FILE} _TLM_VERSION_FILE_CONTENTS)
 
-    string (REGEX MATCH "TLM_VERSION_MAJOR[ \t]+([0-9]+)" 
-            TLM_VERSION_MAJOR ${_TLM_VERSION_FILE_CONTENTS})       
-    string (REGEX MATCH "([0-9]+)" TLM_VERSION_MAJOR 
-            ${TLM_VERSION_MAJOR})       
-    string (REGEX MATCH "TLM_VERSION_MINOR[ \t]+([0-9]+)" 
+    string (REGEX MATCH "TLM_VERSION_MAJOR[ \t]+([0-9]+)"
+            TLM_VERSION_MAJOR ${_TLM_VERSION_FILE_CONTENTS})
+    string (REGEX MATCH "([0-9]+)" TLM_VERSION_MAJOR
+            ${TLM_VERSION_MAJOR})
+    string (REGEX MATCH "TLM_VERSION_MINOR[ \t]+([0-9]+)"
             TLM_VERSION_MINOR ${_TLM_VERSION_FILE_CONTENTS})
-    string (REGEX MATCH "([0-9]+)" TLM_VERSION_MINOR 
+    string (REGEX MATCH "([0-9]+)" TLM_VERSION_MINOR
             ${TLM_VERSION_MINOR})
-    string (REGEX MATCH "TLM_VERSION_PATCH[ \t]+([0-9]+)" 
+    string (REGEX MATCH "TLM_VERSION_PATCH[ \t]+([0-9]+)"
             TLM_VERSION_PATCH ${_TLM_VERSION_FILE_CONTENTS})
-    string (REGEX MATCH "([0-9]+)" TLM_VERSION_PATCH 
+    string (REGEX MATCH "([0-9]+)" TLM_VERSION_PATCH
             ${TLM_VERSION_PATCH})
 
     set(TLM_VERSION "${TLM_VERSION_MAJOR}.${TLM_VERSION_MINOR}.${TLM_VERSION_PATCH}")
-    
+
     find_path(TLM_INCLUDE_DIRS
               NAMES tlm tlm.h
               HINTS ${_TLM_HINTS}
