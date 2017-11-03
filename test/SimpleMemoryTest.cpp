@@ -183,6 +183,9 @@ class TestMaster:
 int sc_main(int argc, char *argv[])
 {
     Memory<32> *mem = new Memory<32>("mem");
+    gs::cnf::cnf_api_if* mApi = gs::cnf::GCnf_Api::getApiInstance(NULL);
+    gs::cnf::gs_param_base* par = mApi->getPar("mem.target_port.high_addr");
+    par->setString("0x2000");
     TestMaster *initiator = new TestMaster("initiator");
 
     initiator->master_socket(mem->target_port);

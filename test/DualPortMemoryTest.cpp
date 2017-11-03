@@ -314,6 +314,9 @@ class TestMaster1:
 int sc_main(int argc, char *argv[])
 {
     DualPortMemory<32, 16> *mem = new DualPortMemory<32, 16>("mem");
+    gs::cnf::cnf_api_if* mApi = gs::cnf::GCnf_Api::getApiInstance(NULL);
+    gs::cnf::gs_param_base* par = mApi->getPar("mem.target_port_0.high_addr");
+    par->setString("0x2000");
     TestMaster0 *initiator0 = new TestMaster0("initiator0");
     TestMaster1 *initiator1 = new TestMaster1("initiator1");
 

@@ -66,14 +66,14 @@ template <unsigned int BUSWIDTH>
 class Memory:
   public sc_module,
   public BaseMemory,
-  public gs::tlm_b_if<gs::gp::GenericSlaveAccessHandle>
+  public gs::tlm_td_b_if<gs::gp::GenericSlaveAccessHandle>
 {
   public:
     Memory(sc_core::sc_module_name name):
     sc_module(name),
-    BaseMemory(),
+    BaseMemory(name),
     target_port("target_port"),
-    m_size("size", 262144),
+    m_size("size", 0),
     m_ro("read_only", false)
     {
       this->target_port.bind_b_if(*this);
@@ -88,10 +88,19 @@ class Memory:
 
     void end_of_elaboration()
     {
+      if (m_size==0) {
+        m_size=(((target_port.high_addr - target_port.base_addr)+512)/1024);
+        std::cout << "Memory " << name() << ": WARNING, auto-setting size to " << m_size << "k " << std::endl;
+      } else {
+        if (m_size < (((target_port.high_addr - target_port.base_addr)+512)/1024)) {
+          std::cout << "Memory " << name() << ": WARNING, you have allocated a different amount of memory than the size of the address map." << std::endl;
+        }
+      }
+
       this->allocate_memory(m_size, m_ro);
     }
 
-    void b_transact(gs::gp::GenericSlaveAccessHandle ah)
+    void b_transact(gs::gp::GenericSlaveAccessHandle ah, sc_core::sc_time& time)
     {
       accessHandle t = _getSlaveAccessHandle(ah);
       uint32_t offset = t->getMAddr() - target_port.base_addr;

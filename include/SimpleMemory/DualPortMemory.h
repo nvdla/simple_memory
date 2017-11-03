@@ -25,7 +25,7 @@ class DualPortMemory:
 public:
     DualPortMemory(sc_core::sc_module_name name):
     sc_core::sc_module(name),
-    BaseMemory(),
+    BaseMemory(name),
     targetPort0("target_port_0"),
     targetPort1("target_port_1"),
     m_size("size", 1000),
