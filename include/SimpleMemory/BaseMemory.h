@@ -73,7 +73,8 @@
 class BaseMemory
 {
 public:
-    BaseMemory()
+    BaseMemory(const char * name):
+    m_name(name)
     {
     }
 
@@ -83,6 +84,11 @@ public:
         {
             munmap(m_ptr, m_size * 1024);
         }
+    }
+
+    void* ptr()
+    {
+      return (void *)m_ptr;
     }
 
     void allocate_memory(size_t size, bool ro)
@@ -95,7 +101,7 @@ public:
 
         if (!m_ptr)
         {
-            std::cout << "BaseMemory: error: can't create memory." << std::endl;
+            std::cout << "BaseMemory " << m_name << ": error: can't create memory." << std::endl;
             sc_core::sc_stop();
             return;
         }
@@ -136,7 +142,7 @@ public:
 
         if (offset + size > m_size * 1024)
         {
-            std::cout << "error out of bound memory access.." << std::endl;
+          std::cout << "BaseMemory " << m_name << ": error out of bound memory access to 0x" << std::hex << offset <<" size 0x"<<size << std::endl;
             sc_core::sc_stop();
             return;
         }
@@ -162,7 +168,7 @@ public:
             }
             else
             {
-                std::cout << "Invalid command ..." << std::endl;
+                std::cout << "BaseMemory " << m_name << ": Invalid command ..." << std::endl;
                 sc_core::sc_stop();
                 return;
             }
@@ -177,7 +183,7 @@ public:
 
             if (size > mask_len)
             {
-                std::cout << "Invalid mask length ..." << std::endl;
+                std::cout << "BaseMemory " << m_name << ": Invalid mask length ..." << std::endl;
                 sc_core::sc_stop();
                 return;
             }
@@ -205,7 +211,7 @@ public:
             }
             else
             {
-                std::cout << "Invalid command ..." << std::endl;
+                std::cout << "BaseMemory " << m_name << ": Invalid command ..." << std::endl;
                 sc_core::sc_stop();
                 return;
             }
@@ -238,6 +244,7 @@ private:
     size_t m_size;
     bool m_ro;
     void *m_ptr;
+    const char *m_name;
 };
 
 #endif /* BASE_MEMORY_H */
