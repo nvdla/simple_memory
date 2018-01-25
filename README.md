@@ -4,7 +4,7 @@ This is a simple memory with DMI using **GreenLib**.
 
 ## Code status
 
-[![build status](http://ci.greensocs.com/projects/9/status.png?ref=master)](http://ci.greensocs.com/projects/9?ref=master)
+[![build status](https://git.greensocs.com/models/simple_memory/badges/master/build.svg)](https://git.greensocs.com/models/simple_memory/commits/master)
 
 ## Include this model in a project
 
